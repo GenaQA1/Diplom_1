@@ -5,6 +5,7 @@ import praktikum.Bun;
 
 
 import static org.junit.Assert.assertEquals;
+
 @RunWith(Parameterized.class)
 public class ParameterizedBunTest {
 
@@ -18,19 +19,22 @@ public class ParameterizedBunTest {
 
 
     @Parameterized.Parameters
-    public static Object[][] bunsIn(){
+    public static Object[][] dataParametersBun() {
         return new Object[][]{
-                {"Страшная",500},
-                {"Новая",500},
-                {null,500F},
+                {"Страшная", 500},
+                {null, 500F},
         };
     }
 
     @Test
-    public void checkResultChoose() {
-        Bun bun = new Bun(name,price);
-        assertEquals(bun.getName(),name);
-        assertEquals(bun.getPrice(),price,0);
+    public void checkReactionInParametersName() {
+        Bun bun = new Bun(name, price);
+        assertEquals(bun.getName(), name);
     }
 
+    @Test
+    public void checkReactionInParametersPrice() {
+        Bun bun = new Bun(name, price);
+        assertEquals(bun.getPrice(), price,0);
+    }
 }

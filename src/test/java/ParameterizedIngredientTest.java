@@ -25,22 +25,30 @@ public class ParameterizedIngredientTest {
     }
 
 
-        @Parameterized.Parameters
-        public static Object[][] bunsIn(){
-            return new Object[][]{
-                    {SAUCE,"Страшная",500},
-                    {FILLING,"Новая",500},
-                    {null,null,500F},
-            };
-        }
+    @Parameterized.Parameters
+    public static Object[][] dataParametersIngredient() {
+        return new Object[][]{
+                {SAUCE, "Страшная", 500},
+                {FILLING, "Новая", 0},
+                {null, null, 500F},
+        };
+    }
 
-        @Test
-        public void checkResultChoose() {
-            Ingredient ingredient = new Ingredient(type,name,price);
-            assertEquals(ingredient.getName(),name);
-            assertEquals(ingredient.getPrice(),price,0);
-            assertEquals(ingredient.getType(),type);
-        }
+    @Test
+    public void checkReactionInParametersType() {
+        Ingredient ingredient = new Ingredient(type, name, price);
+        assertEquals(ingredient.getType(), type);
+    }
 
+    @Test
+    public void checkReactionInParametersName() {
+        Ingredient ingredient = new Ingredient(type, name, price);
+        assertEquals(ingredient.getName(), name);
+    }
 
+    @Test
+    public void checkReactionInParametersPrice() {
+        Ingredient ingredient = new Ingredient(type, name, price);
+        assertEquals(ingredient.getPrice(), price, 0);
+    }
 }
