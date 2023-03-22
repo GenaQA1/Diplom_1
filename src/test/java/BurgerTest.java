@@ -1,3 +1,4 @@
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -7,6 +8,8 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import praktikum.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -16,6 +19,12 @@ public class BurgerTest {
 
     @Mock
     Bun bun;
+    @Mock
+    Ingredient ingredient;
+    @Mock
+    Ingredient movableIngredient;
+    @Mock
+    Ingredient ingredientAdditional;
 
     Database database = new Database();
     List<Bun> buns = database.availableBuns();
@@ -30,58 +39,6 @@ public class BurgerTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    public void checkAddIngredientsInBurger() {
-        burger.setBuns(buns.get(0));
-        burger.addIngredient(ingredients.get(2));
-
-        String expected = "(==== black bun ====)\n" +
-                "= sauce chili sauce =\n" +
-                "(==== black bun ====)\n" +
-                "\n" +
-                "Price: 500,000000\n";
-
-        assertEquals(expected, burger.getReceipt());
-    }
-
-    @Test
-    public void checkRemoveIngredientsInBurger() {
-        burger.setBuns(buns.get(0));
-        burger.addIngredient(ingredients.get(3));
-        burger.removeIngredient(0);
-
-        String expected = "(==== black bun ====)\n" +
-                "(==== black bun ====)\n" +
-                "\n" +
-                "Price: 200,000000\n";
-
-        assertEquals(expected, burger.getReceipt());
-    }
-
-
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void checkRemoveMissIngredientsInBurger() {
-        burger.setBuns(buns.get(0));
-        burger.removeIngredient(0);
-    }
-
-    @Test
-    public void checkMoveIngredientsInBurger() {
-        burger.setBuns(buns.get(1));
-        burger.addIngredient(ingredients.get(4));
-        burger.addIngredient(ingredients.get(1));
-        burger.addIngredient(ingredients.get(3));
-
-        burger.moveIngredient(0, 1);
-
-        assertEquals(burger.getReceipt(), "(==== white bun ====)\n" +
-                "= sauce sour cream =\n" +
-                "= filling dinosaur =\n" +
-                "= filling cutlet =\n" +
-                "(==== white bun ====)\n" +
-                "\n" +
-                "Price: 900,000000\n");
-    }
 
     @Test
     public void checkingSetBunsName() {
@@ -93,7 +50,41 @@ public class BurgerTest {
     }
 
     @Test
-    public void checkingSetBunsPrice() {
+    public void checkingAddIngredient() {
+        int expectedIngredientsCount = 1;
+        burger.addIngredient(ingredients.get(0));
+
+        assertEquals(expectedIngredientsCount,burger.ingredients.size());
+    }
+
+    @Test
+    public void checkRemoveIngredientsInBurger() {
+        int expectedIngredientsCount = 0;
+        burger.addIngredient(ingredients.get(3));
+        burger.removeIngredient(0);
+
+        assertEquals(expectedIngredientsCount, burger.ingredients.size());
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void checkRemoveMissIngredientsInBurger() {
+        burger.setBuns(buns.get(0));
+        burger.removeIngredient(0);
+    }
+
+    @Test
+    public void moveIngredientTest() {
+        burger.ingredients.add(ingredient);
+        burger.ingredients.add(movableIngredient);
+        List<Ingredient> newList = new ArrayList<>(Arrays.asList(movableIngredient, ingredient));
+
+        burger.moveIngredient(0, 1);
+        Assert.assertEquals(newList, burger.ingredients);
+    }
+
+
+    @Test
+    public void checkingBunsPrice() {
         burger.setBuns(bun);
 
         Mockito.when(bun.getPrice()).thenReturn(100500F);
@@ -115,19 +106,26 @@ public class BurgerTest {
     }
 
     @Test
-    public void checkingGetReceipt() {
+    public void getReceiptTest() {
         burger.setBuns(bun);
-        burger.addIngredient(ingredient_3);
+        burger.ingredients.add(ingredient);
+        burger.ingredients.add(ingredientAdditional);
 
-        Mockito.when(bun.getName()).thenReturn("bun");
-        Mockito.when(bun.getPrice()).thenReturn(100500F);
+        Mockito.when(bun.getName()).thenReturn("Harrys");
+        Mockito.when(bun.getPrice()).thenReturn(50f);
+        Mockito.when(ingredient.getName()).thenReturn("1000_островов");
+        Mockito.when(ingredient.getPrice()).thenReturn(30f);
+        Mockito.when(ingredient.getType()).thenReturn(IngredientType.SAUCE);
 
-        String expectedResult = "(==== bun ====)\n" +
-                "= sauce cosmo =\n" +
-                "(==== bun ====)\n" +
-                "\n" +
-                "Price: 301500,000000\n";
-        String actualResult = burger.getReceipt();
-        assertEquals(expectedResult, actualResult);
+        Mockito.when(ingredientAdditional.getName()).thenReturn("Лук");
+        Mockito.when(ingredientAdditional.getPrice()).thenReturn(20f);
+        Mockito.when(ingredientAdditional.getType()).thenReturn(IngredientType.FILLING);
+
+        String expectedReceipt = String.format("(==== %s ====)%n", bun.getName()) +
+                String.format("= %s %s =%n", ingredient.getType().toString().toLowerCase(), ingredient.getName()) +
+                String.format("= %s %s =%n", ingredientAdditional.getType().toString().toLowerCase(), ingredientAdditional.getName()) +
+                String.format("(==== %s ====)%n", bun.getName()) +
+                String.format("%nPrice: %f%n", burger.getPrice());
+        Assert.assertEquals(expectedReceipt, burger.getReceipt());
     }
 }
